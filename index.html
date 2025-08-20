@@ -1,24 +1,48 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en" class="scroll-smooth dark">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>PropRisk Guard — Assistant</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>PropRisk Guard — Assistant</title>
 
-<!-- ✅ SEO adăugat -->
-<meta name="description" content="PropRisk Guard — AI Assistant pentru gestionarea riscului la firme de prop trading. Monitorizează drawdown-ul, calculează mărimea lotului și rămâi disciplinat.">
-<meta name="keywords" content="PropRisk Guard, prop trading, risk management, drawdown, funded account, trading discipline, lot size calculator">
-<meta name="author" content="PropRisk Guard">
-<link rel="canonical" href="https://propriskguard.com/"/>
+  <!-- ✅ SEO -->
+  <meta name="description" content="PropRisk Guard — AI Assistant pentru gestionarea riscului la firme de prop trading. Monitorizează drawdown-ul, calculează mărimea lotului și rămâi disciplinat.">
+  <meta name="keywords" content="PropRisk Guard, prop trading, risk management, drawdown, funded account, trading discipline, lot size calculator">
+  <meta name="author" content="PropRisk Guard">
+  <link rel="canonical" href="https://propriskguard.com/"/>
 
-<!-- ✅ Sitemap + robots.txt -->
-<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml"/>
-<meta name="robots" content="index, follow"/>
+  <!-- ✅ Sitemap + robots -->
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml"/>
+  <meta name="robots" content="index, follow"/>
 
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root { --ring: 0 0 0 3px rgba(16,185,129,.35); }
+    .focus-ring:focus { outline: none; box-shadow: var(--ring); }
+    .blur-locked{ filter: blur(6px); pointer-events:none; user-select:none; }
+    .snap-x::-webkit-scrollbar{ display:none }
+    .hud-drag { cursor: grab; } .hud-drag:active { cursor: grabbing; }
+    @media print{ #paywall,.no-print{display:none!important} body{background:#000} }
+    .bg-aurora {
+      background:
+        radial-gradient(1200px 600px at 10% 0%, rgba(16,185,129,.15), transparent 60%),
+        radial-gradient(800px 500px at 90% 10%, rgba(59,130,246,.12), transparent 60%),
+        radial-gradient(1000px 800px at 50% 100%, rgba(236,72,153,.10), transparent 60%),
+        #0a0a0a;
+      position: relative;
+    }
+    .bg-aurora:after{
+      content:"";
+      position:absolute; inset:0; pointer-events:none;
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" opacity="0.06"><filter id="n"><feTurbulence baseFrequency="0.75" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
+      mix-blend-mode:soft-light;
+    }
+  </style>
+</head>
+
 <body class="bg-neutral-950 text-neutral-100 min-h-screen flex flex-col bg-aurora">
 
 <!-- Header -->
@@ -38,7 +62,7 @@
         <span id="liveUsers">234</span> traders online
       </span>
       <a id="buyBtnTop" href="#" class="hidden sm:inline-flex px-4 py-2 rounded-xl bg-white text-neutral-900 text-sm hover:opacity-90 transition focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-400/30">
-        Buy &amp; Unlock — €9.99 <span class="opacity-70 ml-1">(lifetime)</span>
+        Buy &amp; Unlock — £9.99 <span class="opacity-70 ml-1">(lifetime)</span>
       </a>
       <button id="resetLicense" class="px-3 py-2 rounded-xl ring-1 ring-neutral-700 text-sm no-print" title="Lock again for testing">Reset license</button>
     </div>
@@ -256,12 +280,8 @@
           <div class="flex items-center gap-2 text-xs">
             <span class="text-neutral-400">SOD:</span>
             <span id="sodVal" class="font-medium">$100,000</span>
-            <button id="setSod" class="px-2.5 py-1.5 rounded-lg text-xs bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">
-              Set SOD
-            </button>
-            <button id="resetChart" class="px-2.5 py-1.5 rounded-lg text-xs bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">
-              Reset
-            </button>
+            <button id="setSod" class="px-2.5 py-1.5 rounded-lg text-xs bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">Set SOD</button>
+            <button id="resetChart" class="px-2.5 py-1.5 rounded-lg text-xs bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">Reset</button>
           </div>
         </div>
         <div class="h-56 md:h-64 relative">
@@ -386,7 +406,7 @@
       <a id="buyBtn" href="#" class="relative inline-flex items-center justify-center px-5 py-3 rounded-xl text-sm font-medium
            bg-white text-neutral-900 ring-1 ring-white/10 hover:opacity-90 transition
            focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-400/30">
-        Buy &amp; Unlock — €9.99 <span class="opacity-80">&nbsp;(lifetime)</span>
+        Buy &amp; Unlock — £9.99 <span class="opacity-80">&nbsp;(lifetime)</span>
       </a>
       <p class="text-xs text-neutral-400 mt-2">One-time payment, lifetime access. Stripe accepts cards, Apple Pay & Google Pay.</p>
     </div>
@@ -426,17 +446,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Year
   const yr=document.getElementById('yr'); if(yr) yr.textContent = new Date().getFullYear();
 
-  // === STRIPE: setează Payment Link-ul tău ===
-  // IMPORTANT: În Stripe -> Payment Link -> Success URL pune: https://domeniul-tau.com/?unlock=PRG-STRP-CHECK-42
-  const STRIPE_LINK = 'https://buy.stripe.com/REPLACE_ME'; // <-- înlocuiește cu link-ul tău
+  // ====== STRIPE CONFIG ======
+  // 1) Payment Link (checkout):
+  const STRIPE_LINK = 'https://buy.stripe.com/9B6aEQc3IcLM2y18r683C00';
+
+  // 2) Token-ul care vine în Success URL: https://propriskguard.com/?unlock=PRG-STRP-9F8DKZ-2025
+  const UNLOCK_TOKEN = 'PRG-STRP-9F8DKZ-2025';
 
   // Wire butoanele Buy & Unlock -> Stripe
   function gotoStripe() {
-    if (!STRIPE_LINK || STRIPE_LINK === 'https://buy.stripe.com/REPLACE_ME') {
-      alert('Setează mai întâi STRIPE_LINK cu Payment Link-ul tău Stripe.');
+    if (!STRIPE_LINK) {
+      alert('STRIPE_LINK nu este setat.');
       return;
     }
-    window.location.href = STRIPE_LINK; // Success URL setezi în Stripe Dashboard
+    window.location.href = STRIPE_LINK;
   }
   const wireBuy=(el)=>{ if(!el) return; el.addEventListener('click', (e)=>{ e.preventDefault(); gotoStripe(); }); };
   wireBuy(document.getElementById('buyBtn'));
@@ -446,30 +469,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const liveUsers=document.getElementById('liveUsers'), liveChip=document.getElementById('liveChip');
   if(liveUsers&&liveChip){ liveChip.classList.remove('hidden'); let n=220+Math.random()*40|0; setInterval(()=>{ n=Math.max(120,n+((Math.random()*5|0)-2)); liveUsers.textContent=n; },2500); }
 
-  // Paywall strict
+  // Paywall lock/unlock
   const app=document.getElementById('app'), paywall=document.getElementById('paywall'), proBadge=document.getElementById('proBadge');
   const lock=()=>{ try{localStorage.removeItem('prg_unlocked');}catch(e){} paywall.style.display='flex'; app.classList.add('blur-locked'); };
-  const confetti=()=>{ for(let i=0;i<18;i++){ const s=document.createElement('span'); s.style.cssText=`position:fixed;left:50%;top:50%;width:6px;height:10px;border-radius:2px;background:hsl(${(i*20)%360} 90% 60%);transform:translate(-50%,-50%) rotate(${Math.random()*360}deg);pointer-events:none;z-index:60;opacity:.9`; document.body.appendChild(s); const x=(Math.random()*2-1)*260, y=(Math.random()*-1-0.5)*240, r=600+Math.random()*400; s.animate([{transform:\`translate(0,0) rotate(0deg)\`},{transform:\`translate(${x}px,${y}px) rotate(${r}deg)\`,opacity:.0}],{duration:1100+Math.random()*500, easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>s.remove(); } };
+  const confetti=()=>{ for(let i=0;i<18;i++){ const s=document.createElement('span'); s.style.cssText=\position:fixed;left:50%;top:50%;width:6px;height:10px;border-radius:2px;background:hsl(\${(i*20)%360} 90% 60%);transform:translate(-50%,-50%) rotate(\${Math.random()*360}deg);pointer-events:none;z-index:60;opacity:.9\; document.body.appendChild(s); const x=(Math.random()*2-1)*260, y=(Math.random()*-1-0.5)*240, r=600+Math.random()*400; s.animate([{transform:'translate(0,0) rotate(0deg)'},{transform:\translate(\${x}px,\${y}px) rotate(\${r}deg)\,opacity:.0}],{duration:1100+Math.random()*500, easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>s.remove(); } };
   const unlock=()=>{ paywall.style.display='none'; app.classList.remove('blur-locked'); try{localStorage.setItem('prg_unlocked','1');}catch(e){}; document.getElementById('hud')?.classList.remove('hidden'); proBadge?.classList.remove('hidden'); confetti(); };
 
-  // License validation (client-side MVP)
+  // License (strict) — doar prin token-ul din Success URL sau introducere manuală a aceluiași token
   const licenseInput=document.getElementById('license'), redeemBtn=document.getElementById('redeem');
-  const keyChecksum=(s)=>{ let x=0; for(let i=0;i<s.length;i++){ x=(x*31+s.charCodeAt(i))%997; } return x%97; };
-  const validKey=(k)=>{ if(!k) return false; k=k.trim().toUpperCase();
-    if(k==='DEV-ASSIST-2025') return true;
-    if(k==='DEV-UNLOCK-999') return true;
-    if(k==='PRG-AB12-CD34-52') return true;
-    if(k==='PRG-STRP-CHECK-42') return true; // <- cheie din Success URL
-    const m=k.match(/^PRG-([A-Z0-9]{4})-([A-Z0-9]{4})-([0-9]{2})$/); if(!m) return false;
-    return keyChecksum(\`PRG-\${m[1]}-\${m[2]}\`)===(parseInt(m[3],10));
-  };
+  const validKey=(k)=> String(k||'').trim().toUpperCase() === UNLOCK_TOKEN;
 
   // Success URL unlock: dacă Stripe te întoarce cu ?unlock=...
-  const qs=new URLSearchParams(location.search);
-  if(qs.has('unlock')){ const k=qs.get('unlock'); try{ localStorage.setItem('prg_unlock_from_url', k); }catch(e){} }
+  const qs = new URLSearchParams(location.search);
+  if(qs.has('unlock')){
+    const k = qs.get('unlock');
+    if (validKey(k)) { try{ localStorage.setItem('prg_unlock_from_url', k); }catch(e){} }
+  }
+  try {
+    const k = localStorage.getItem('prg_unlock_from_url');
+    if (validKey(k)) unlock();
+  } catch(e){}
 
-  try{ const k=localStorage.getItem('prg_unlock_from_url'); if(k && validKey(k)){ unlock(); } }catch(e){}
-  redeemBtn?.addEventListener('click', ()=>{ const k=(licenseInput?.value||'').trim();
+  redeemBtn?.addEventListener('click', ()=>{
+    const k=(licenseInput?.value||'').trim();
     if(k){ if(validKey(k)) unlock(); else alert('Invalid license key.'); return; }
     // fără cheie -> cumpără
     gotoStripe();
@@ -495,7 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropZone=$('dropZone'), pickCsv=$('pickCsv'), csvFile=$('csvFile'), journal=$('journal'), saveJournal=$('saveJournal'), exportJournal=$('exportJournal');
   const JOURNAL_KEY='prg_journal_'+(new Date().toISOString().slice(0,10));
   if(journal) journal.value=localStorage.getItem(JOURNAL_KEY)||'';
-  const parseCSV=(text)=>{ const lines=text.split(/\r?\n/).filter(l=>l.trim()); const rows=lines.map(l=>l.split(',')); const formatted=rows.map(r=>`[${(r[0]||'date').trim()}] P/L: ${(r[1]||'0').trim()} — ${(r[2]||'').trim()}`).join('\n'); journal.value=(journal.value?journal.value+'\n':'')+formatted; };
+  const parseCSV=(text)=>{ const lines=text.split(/\r?\n/).filter(l=>l.trim()); const rows=lines.map(l=>l.split(',')); const formatted=rows.map(r=>[${(r[0]||'date').trim()}] P/L: ${(r[1]||'0').trim()} — ${(r[2]||'').trim()}).join('\n'); journal.value=(journal.value?journal.value+'\n':'')+formatted; };
   const handleFiles=(files)=>{ if(!files||!files[0]) return; const reader=new FileReader(); reader.onload=(e)=>parseCSV(String(e.target.result||'')); reader.readAsText(files[0]); };
   if(dropZone){ dropZone.addEventListener('dragover',(e)=>{ e.preventDefault(); dropZone.classList.add('ring-2','ring-emerald-500'); });
     dropZone.addEventListener('dragleave',()=> dropZone.classList.remove('ring-2','ring-emerald-500'));
@@ -547,11 +569,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Presets (local)
   const presetList=$('presetList'), presetName=$('presetName'), savePreset=$('savePreset'), loadPreset=$('loadPreset'), deletePreset=$('deletePreset');
-  const refreshPresets=()=>{ const list=JSON.parse(localStorage.getItem('prg_presets')||'[]'); if(presetList) presetList.innerHTML=list.map((p,i)=>`<option value="${i}">${p.name}</option>`).join(''); };
+  const refreshPresets=()=>{ const list=JSON.parse(localStorage.getItem('prg_presets')||'[]'); if(presetList) presetList.innerHTML=list.map((p,i)=><option value="${i}">${p.name}</option>).join(''); };
   refreshPresets();
   savePreset?.addEventListener('click',()=>{ const name=(presetName?.value||'Preset').trim(); const list=JSON.parse(localStorage.getItem('prg_presets')||'[]'); list.push({name,firm:firmEl?.value,mdl:parseFloat(mdlPctEl?.value||0),mol:parseFloat(molPctEl?.value||0),ccy:curCcy,balance:parseFloat(balanceEl?.value||0),pip:parseFloat(pipValEl?.value||0)}); localStorage.setItem('prg_presets', JSON.stringify(list)); refreshPresets(); alert('Preset saved.'); });
   loadPreset?.addEventListener('click',()=>{ const list=JSON.parse(localStorage.getItem('prg_presets')||'[]'); const p=list[parseInt(presetList?.value||'-1',10)]; if(!p) return; if(firmEl) firmEl.value=p.firm||'Custom'; if(mdlPctEl) mdlPctEl.value=p.mdl||5; if(molPctEl) molPctEl.value=p.mol||10; setCurrency(p.ccy||'USD', true); if(balanceEl) balanceEl.value=p.balance||0; if(pipValEl) pipValEl.value=p.pip||10; calc(); });
-  deletePreset?.addEventListener('click',()=>{ const list=JSON.parse(localStorage.getItem('prg_presets')||'[]'); const i=parseInt(presetList?.value||'-1',10); if(isNaN(i)||!list[i]) return; list.splice(i,1); localStorage.setItem('prg_presets', JSON.stringify(list)); refreshPresets(); });
+  deletePreset?.addEventListener('click',()=>{ const list=JSON.parse(localStorage.getItem('prg_presets')||'[]'); const i=parseInt(presetList?.value||'-1',10); if(isNaN(i)||!list[i]) return; list.splice(i,1); localStorage.setItem('prg_presets', JSON.stringify(list)); });
 
   // Alerts + notifications
   let lastBeep=0; 
@@ -567,15 +589,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.querySelectorAll('.ck').forEach(c=> c.addEventListener('change', checkChecklist));
 
-  // === Chart: compact & throttled ===
+  // === Chart
   let startEquity = null;
   const sodVal = document.getElementById('sodVal');
   const setSod = document.getElementById('setSod');
   const resetChart = document.getElementById('resetChart');
   const canvas = document.getElementById('equityChart');
 
-  const MAX_POINTS = 60;     // ~5 min la 5s/point
-  const TICK_MS    = 5000;   // update din 5 în 5 secunde
+  const MAX_POINTS = 60;
+  const TICK_MS    = 5000;
   let chart = null;
   let chartTimer = null;
 
@@ -660,10 +682,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if(pct>=90) tips.push('⛔ Daily usage above 90%. Stop for today.');
     else if(pct>=75) tips.push('⚠ You\'re above 75% of MDL. Only take A+ setups.');
     if(lot===0) tips.push('Set SL pips and $/pip to compute lot size.');
-    if(riskMoney>0 && lot>0) tips.push(`Your risk per trade is <b>${fmt(riskMoney)}</b>. Keep it consistent.`);
+    if(riskMoney>0 && lot>0) tips.push(Your risk per trade is <b>${fmt(riskMoney)}</b>. Keep it consistent.);
     if(session<0 && Math.abs(session) > remaining*0.3) tips.push('Session loss large vs remaining. Consider pausing.');
     if(tips.length===0) tips.push('✅ Plan looks healthy. Avoid revenge trades.');
-    if(coach) coach.innerHTML = tips.map(t=>`<li>• ${t}</li>`).join('');
+    if(coach) coach.innerHTML = tips.map(t=><li>• ${t}</li>).join('');
   }
 
   // Scenario matrix
@@ -674,9 +696,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const scSLs=scSLsStr.split(',').map(s=>parseFloat(s.trim())).filter(v=>!isNaN(v));
     const bal=parseFloat(balanceEl?.value||0), pip=parseFloat(pipValEl?.value||0);
     let html='<table class="min-w-[420px] w-full text-sm [&_tr:hover]:bg-neutral-800/40 rounded-xl overflow-hidden"><thead><tr><th class="text-left py-2 px-3">Risk% \\ SL</th>';
-    scSLs.forEach(sl=> html+=`<th class="text-right py-2 px-3">${sl} pips</th>`); html+='</tr></thead><tbody>';
-    scRisks.forEach(r=>{ html+=`<tr class="border-t border-neutral-800"><td class="py-2 px-3 font-medium">${r}%</td>`;
-      scSLs.forEach(sl=>{ const riskMoney=bal*(r/100); const lot=(sl>0&&pip>0)?(riskMoney/(sl*pip)):0; html+=`<td class="py-2 px-3 text-right tabular-nums">${isFinite(lot)?(lot>=1?lot.toFixed(2):lot.toFixed(3)):'—'}</td>`; });
+    scSLs.forEach(sl=> html+=<th class="text-right py-2 px-3">${sl} pips</th>); html+='</tr></thead><tbody>';
+    scRisks.forEach(r=>{ html+=<tr class="border-t border-neutral-800"><td class="py-2 px-3 font-medium">${r}%</td>;
+      scSLs.forEach(sl=>{ const riskMoney=bal*(r/100); const lot=(sl>0&&pip>0)?(riskMoney/(sl*pip)):0; html+=<td class="py-2 px-3 text-right tabular-nums">${isFinite(lot)?(lot>=1?lot.toFixed(2):lot.toFixed(3)):'—'}</td>; });
       html+='</tr>'; });
     html+='</tbody></table>';
     const scTable=document.getElementById('scTable'); if(scTable) scTable.innerHTML=html;
@@ -720,10 +742,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const plannedLoss=sl*pip*lot+Math.max(0,-session);
     let msg='';
-    if(plannedLoss>=remaining && remaining>0){ msg=`⚠ Planned risk (${fmt(plannedLoss)}) exceeds remaining daily limit (${fmt(remaining)}). Reduce lot or stop.`; notify('Planned risk exceeds remaining daily limit.'); }
-    else if(remaining===0){ msg=`⛔ No remaining loss for today. Stop trading.`; notify('No remaining loss for today. Stop.'); }
-    else if(plannedLoss>=0.5*remaining){ msg=`⚠ High risk vs remaining (${fmt(plannedLoss)} vs ${fmt(remaining)}). Consider smaller lot.`; }
-    else { msg=`✅ Within today's limit. Keep discipline.`; }
+    if(plannedLoss>=remaining && remaining>0){ msg=⚠ Planned risk (${fmt(plannedLoss)}) exceeds remaining daily limit (${fmt(remaining)}). Reduce lot or stop.; notify('Planned risk exceeds remaining daily limit.'); }
+    else if(remaining===0){ msg=⛔ No remaining loss for today. Stop trading.; notify('No remaining loss for today. Stop.'); }
+    else if(plannedLoss>=0.5*remaining){ msg=⚠ High risk vs remaining (${fmt(plannedLoss)} vs ${fmt(remaining)}). Consider smaller lot.; }
+    else { msg=✅ Within today's limit. Keep discipline.; }
     if(guardMsgEl) guardMsgEl.textContent=msg;
 
     coachTips({pct, remaining, lot, riskMoney, sl, pip, session});
@@ -734,12 +756,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Countdown + HUD
   function tick(){ const now=new Date(); const t=new Date(now); t.setHours(24,0,0,0);
     const ms=t-now; const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000), s=Math.floor((ms%60000)/1000);
-    const txt = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const txt = ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')};
     if(resetTimer) resetTimer.textContent=txt; const hudTimer=document.getElementById('hudTimer'); if(hudTimer) hudTimer.textContent=txt;
   }
 
   // Share / Print
-  document.getElementById('copyLink')?.addEventListener('click', async ()=>{ const q=new URLSearchParams({ bal:balanceEl?.value, pl:plTodayEl?.value, c:curCcy, mdl:mdlPctEl?.value, mol:molPctEl?.value, rp:riskPctEl?.value, sl:slPipsEl?.value, pip:pipValEl?.value }); const url=`${location.origin}${location.pathname}?${q}`; try{ await navigator.clipboard.writeText(url); alert('Link copied.'); }catch(e){ prompt('Copy link:', url); } });
+  document.getElementById('copyLink')?.addEventListener('click', async ()=>{ const q=new URLSearchParams({ bal:balanceEl?.value, pl:plTodayEl?.value, c:curCcy, mdl:mdlPctEl?.value, mol:molPctEl?.value, rp:riskPctEl?.value, sl:slPipsEl?.value, pip:pipValEl?.value }); const url=${location.origin}${location.pathname}?${q}; try{ await navigator.clipboard.writeText(url); alert('Link copied.'); }catch(e){ prompt('Copy link:', url); } });
   document.getElementById('printBtn')?.addEventListener('click', ()=> window.print());
 
   // Copy lot (gated)
@@ -760,24 +782,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Assistant (local)
   const chatLog=$('chatLog'), chatInput=$('chatInput'), chatSend=$('chatSend');
-  function addMsg(txt,who){ const b=document.createElement('div'); b.className=`max-w-[85%] ${who==='me'?'ml-auto bg-emerald-600 text-white':'bg-neutral-900/70 text-neutral-100'} rounded-xl px-3 py-2`; b.innerHTML=txt; chatLog?.appendChild(b); chatLog.scrollTop=chatLog.scrollHeight; }
+  function addMsg(txt,who){ const b=document.createElement('div'); b.className=max-w-[85%] ${who==='me'?'ml-auto bg-emerald-600 text-white':'bg-neutral-900/70 text-neutral-100'} rounded-xl px-3 py-2; b.innerHTML=txt; chatLog?.appendChild(b); chatLog.scrollTop=chatLog.scrollHeight; }
   function botReply(q){
     const ql=(q||'').toLowerCase();
     const bal=parseFloat(balanceEl?.value||0), mdl=parseFloat(mdlPctEl?.value||0)/100, mol=parseFloat(molPctEl?.value||0)/100, pl=parseFloat(plTodayEl?.value||0), sess=parseFloat(plSessionEl?.value||0);
-    const maxDaily=bal*mdl, remaining=Math.max(0,maxDaily+pl), overallMax=bal*mol;
-    const riskPct = Math.max(0, parseFloat(riskPctEl?.value||0))/100, sl = Math.max(0, parseFloat(slPipsEl?.value||0)), pip = Math.max(0, parseFloat(pipValEl?.value||0));
+    const maxDaily=bal*mdl, remaining=Math.max(0, maxDaily-used);
+        const remaining=Math.max(0,maxDaily+pl), overallMax=bal*mol;
+    const riskPct = Math.max(0, parseFloat(riskPctEl?.value||0))/100;
+    const sl = Math.max(0, parseFloat(slPipsEl?.value||0));
+    const pip = Math.max(0, parseFloat(pipValEl?.value||0));
     const lot=(sl>0&&pip>0)?(bal*riskPct/(sl*pip)):0;
-    if(ql.includes('help')||ql==='?') return 'Try: <b>remaining</b>, <b>max daily</b>, <b>overall</b>, <b>lot</b>, <b>timer</b>, or ask e.g. “risk 1% with 30 pips”.';
+
+    if(ql.includes('help')||ql==='?') return 'Try: <b>remaining</b>, <b>max daily</b>, <b>overall</b>, <b>lot</b>, <b>timer</b>, sau întreabă: “risk 1% with 30 pips”.';
     if(ql.includes('remaining')) return `You can still lose <b>${fmt(remaining)}</b> today before breaching the daily limit.`;
     if(ql.includes('max daily')) return `Max Daily Loss is <b>${fmt(maxDaily)}</b> for your current balance and rules.`;
     if(ql.includes('overall')) return `Overall max loss allowed is <b>${fmt(overallMax)}</b>.`;
     if(ql.includes('timer')||ql.includes('reset')) return `Time to reset: <b>${document.getElementById('resetTimer')?.textContent||'--:--:--'}</b>.`;
     if(ql.includes('lot')) return `With risk ${(riskPct*100).toFixed(2)}%, SL ${sl} pips, ${curSym}/pip=${pip}, lot ≈ <b>${ isFinite(lot)? (lot>=1?lot.toFixed(2):lot.toFixed(3)) : '—' }</b>.`;
-    const m=ql.match(/risk\s*([0-9.]+)\s*%.*?(\d+)\s*(pip|pips)/); if(m){ const r=parseFloat(m[1])/100; const slGuess=parseFloat(m[2]); const lotG=(slGuess>0&&pip>0)?(bal*r/(slGuess*pip)):0; return `At risk ${m[1]}% and SL ${slGuess} pips, lot ≈ <b>${ isFinite(lotG)? (lotG>=1?lotG.toFixed(2):lotG.toFixed(3)) : '—' }</b>.`; }
+
+    const m=ql.match(/risk\s*([0-9.]+)\s*%.*?(\d+)\s*(pip|pips)/);
+    if(m){
+      const r=parseFloat(m[1])/100;
+      const slGuess=parseFloat(m[2]);
+      const lotG=(slGuess>0&&pip>0)?(bal*r/(slGuess*pip)):0;
+      return `At risk ${m[1]}% and SL ${slGuess} pips, lot ≈ <b>${ isFinite(lotG)? (lotG>=1?lotG.toFixed(2):lotG.toFixed(3)) : '—' }</b>.`;
+    }
     return 'Got it. Type <b>help</b> for examples.';
   }
-  function send(){ const t=(chatInput?.value||'').trim(); if(!t) return; addMsg(t,'me'); addMsg(botReply(t),'bot'); if(chatInput) chatInput.value=''; }
-  chatSend?.addEventListener('click',send); chatInput?.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
+
+  function send(){
+    const t=(chatInput?.value||'').trim();
+    if(!t) return;
+    addMsg(t,'me'); addMsg(botReply(t),'bot');
+    if(chatInput) chatInput.value='';
+  }
+  chatSend?.addEventListener('click',send);
+  chatInput?.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); send(); }});
 
   // URL state (share)
   (function fromQuery(){
@@ -792,15 +832,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if(p.has('pip')&&pipValEl) pipValEl.value=p.get('pip');
   })();
 
-  // Wire + init
-  [balanceEl, plTodayEl, plSessionEl, riskPctEl, slPipsEl, pipValEl, mdlPctEl, molPctEl, alertPctEl].forEach(el=> el?.addEventListener('input', calc));
+  // Init
+  [balanceEl, plTodayEl, plSessionEl, riskPctEl, slPipsEl, pipValEl, mdlPctEl, molPctEl, alertPctEl]
+    .forEach(el=> el?.addEventListener('input', calc));
+
   if(ccyEl) setCurrency(ccyEl.value, true);
   calc(); renderMatrix(); tick(); setInterval(tick, 1000);
 });
 </script>
-<!-- la finalul lui index.html, chiar înainte de </body> -->
-<script src="script.js"></script>
 </body>
-</html>
-</body>
-</html>
+</html>d
