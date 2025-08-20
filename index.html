@@ -1,37 +1,24 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth dark">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>PropRisk Guard — Assistant</title>
+
+<!-- ✅ SEO adăugat -->
+<meta name="description" content="PropRisk Guard — AI Assistant pentru gestionarea riscului la firme de prop trading. Monitorizează drawdown-ul, calculează mărimea lotului și rămâi disciplinat.">
+<meta name="keywords" content="PropRisk Guard, prop trading, risk management, drawdown, funded account, trading discipline, lot size calculator">
+<meta name="author" content="PropRisk Guard">
+<link rel="canonical" href="https://propriskguard.com/"/>
+
+<!-- ✅ Sitemap + robots.txt -->
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml"/>
+<meta name="robots" content="index, follow"/>
+
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<style>
-  :root { --ring: 0 0 0 3px rgba(16,185,129,.35); }
-  .focus-ring:focus { outline: none; box-shadow: var(--ring); }
-  .blur-locked{ filter: blur(6px); pointer-events:none; user-select:none; }
-  .snap-x::-webkit-scrollbar{ display:none }
-  .hud-drag { cursor: grab; } .hud-drag:active { cursor: grabbing; }
-  @media print{ #paywall,.no-print{display:none!important} body{background:#000} }
-
-  /* Dark aurora bg */
-  .bg-aurora {
-    background:
-      radial-gradient(1200px 600px at 10% 0%, rgba(16,185,129,.15), transparent 60%),
-      radial-gradient(800px 500px at 90% 10%, rgba(59,130,246,.12), transparent 60%),
-      radial-gradient(1000px 800px at 50% 100%, rgba(236,72,153,.10), transparent 60%),
-      #0a0a0a;
-    position: relative;
-  }
-  .bg-aurora:after{
-    content:"";
-    position:absolute; inset:0; pointer-events:none;
-    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" opacity="0.06"><filter id="n"><feTurbulence baseFrequency="0.75" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
-    mix-blend-mode:soft-light;
-  }
-</style>
-</head>
 <body class="bg-neutral-950 text-neutral-100 min-h-screen flex flex-col bg-aurora">
 
 <!-- Header -->
