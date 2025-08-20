@@ -1,234 +1,450 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PropRiskGuard</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>PropRisk Guard — Assistant</title>
+
+  <!-- SEO minim -->
+  <meta name="description" content="PropRisk Guard — AI Assistant pentru gestionarea riscului la firme de prop trading. Monitorizează drawdown-ul, calculează mărimea lotului și rămâi disciplinat.">
+  <link rel="canonical" href="https://propriskguard.com/"/>
+
+  <!-- Assets CSS/JS externe (fără inline JS) -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f4f4;
-      color: #333;
+    :root { --ring: 0 0 0 3px rgba(16,185,129,.35); }
+    .focus-ring:focus { outline: none; box-shadow: var(--ring); }
+    .blur-locked{ filter: blur(6px); pointer-events:none; user-select:none; }
+    .snap-x::-webkit-scrollbar{ display:none }
+    .hud-drag { cursor: grab; } .hud-drag:active { cursor: grabbing; }
+    @media print{ #paywall,.no-print{display:none!important} body{background:#000} }
+
+    /* Dark aurora bg */
+    .bg-aurora {
+      background:
+        radial-gradient(1200px 600px at 10% 0%, rgba(16,185,129,.15), transparent 60%),
+        radial-gradient(800px 500px at 90% 10%, rgba(59,130,246,.12), transparent 60%),
+        radial-gradient(1000px 800px at 50% 100%, rgba(236,72,153,.10), transparent 60%),
+        #0a0a0a;
+      position: relative;
     }
-    header {
-      background: #222;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
+    .bg-aurora:after{
+      content:"";
+      position:absolute; inset:0; pointer-events:none;
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" opacity="0.06"><filter id="n"><feTurbulence baseFrequency="0.75" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
+      mix-blend-mode:soft-light;
     }
-    header h1 {
-      margin: 0;
-    }
-    main {
-      padding: 20px;
-      max-width: 900px;
-      margin: auto;
-    }
-    .paywall {
-      text-align: center;
-      padding: 50px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .paywall h2 {
-      margin-bottom: 20px;
-    }
-    .pay-btn {
-      background: #0a84ff;
-      color: #fff;
-      padding: 15px 25px;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .pay-btn:hover {
-      background: #006edc;
-    }
-    #appContent {
-      display: none;
-    }
-    .hidden { display: none; }
-    .chatbox {
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 10px;
-      background: #fff;
-      margin-top: 20px;
-    }
-    .chat-messages {
-      max-height: 200px;
-      overflow-y: auto;
-      margin-bottom: 10px;
-      border: 1px solid #eee;
-      padding: 5px;
-    }
-    .chat-messages div {
-      margin: 3px 0;
-    }
-    .chat-messages .me { color: #0a84ff; }
-    .chat-messages .bot { color: #333; }
   </style>
 </head>
-<body>
-<header>
-  <h1>PropRiskGuard</h1>
-  <p>Risk Management Tool for Traders</p>
+
+<body class="bg-neutral-950 text-neutral-100 min-h-screen flex flex-col bg-aurora">
+
+<!-- Header -->
+<header class="bg-neutral-900/70 backdrop-blur border-b border-neutral-800 sticky top-0 z-40 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <svg viewBox="0 0 24 24" class="w-9 h-9 text-emerald-500"><path fill="currentColor" d="M12 2l7 3v6c0 5-3.5 9.74-7 11-3.5-1.26-7-6-7-11V5l7-3z"/></svg>
+      <div>
+        <h1 class="text-xl font-semibold tracking-tight">PropRisk Guard</h1>
+        <p class="text-xs text-neutral-400 -mt-0.5">Never breach your prop firm again</p>
+      </div>
+      <span id="proBadge" class="hidden ml-3 items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20 text-xs">Pro unlocked</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="liveChip" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-neutral-800 ring-1 ring-neutral-700 text-sm">
+        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="liveUsers">234</span> traders online
+      </span>
+
+      <!-- Trimite direct spre Stripe (£9.99) -->
+      <a id="buyBtnTop"
+         href="https://buy.stripe.com/9B6aEQc3IcLM2y18r683C00"
+         class="hidden sm:inline-flex px-4 py-2 rounded-xl bg-white text-neutral-900 text-sm hover:opacity-90 transition focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-400/30">
+        Buy &amp; Unlock — £9.99 <span class="opacity-70 ml-1">(lifetime)</span>
+      </a>
+
+      <button id="resetLicense" class="px-3 py-2 rounded-xl ring-1 ring-neutral-700 text-sm no-print" title="Lock again for testing">Reset license</button>
+    </div>
+  </div>
 </header>
 
-<main>
-  <!-- PAYWALL -->
-  <div id="paywall" class="paywall">
-    <h2>Unlock Full Access</h2>
-    <p>Get unlimited access for only <b>£9.99</b></p>
-    <button id="buyBtn" class="pay-btn">Buy & Unlock</button>
-  </div>
+<!-- APP (locked by default) -->
+<main id="app" class="flex-1 max-w-6xl mx-auto px-4 py-8 grid lg:grid-cols-3 gap-6 blur-locked">
 
-  <!-- APP CONTENT -->
-  <div id="appContent">
-    <h2>Welcome to PropRiskGuard!</h2>
-    <p>Now you have full access to the risk management dashboard.</p>
+  <!-- LEFT: Inputs + Reviews -->
+  <section class="lg:col-span-2 space-y-6">
 
-    <div>
-      <label>Balance: <input id="balance" type="number" value="10000"></label>
-      <label>P/L Today: <input id="plToday" type="number" value="0"></label>
-      <label>Currency:
-        <select id="ccy">
-          <option value="USD" selected>USD</option>
-          <option value="GBP">GBP</option>
-          <option value="EUR">EUR</option>
-        </select>
-      </label>
+    <!-- INPUTS -->
+    <div class="rounded-2xl p-5 shadow-sm ring-1 ring-white/10 bg-neutral-900/60 backdrop-blur-md">
+      <h2 class="text-xs font-semibold tracking-wider text-neutral-400 flex items-center gap-2">
+        <span class="inline-flex h-5 w-5 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-400">⚙</span>
+        INPUTS
+      </h2>
+      <div class="h-px bg-gradient-to-r from-neutral-800 via-transparent to-transparent mb-3"></div>
+
+      <div class="grid sm:grid-cols-2 gap-3">
+        <label class="block">
+          <span class="text-sm font-medium">Account Balance</span>
+          <div class="mt-1 relative">
+            <input id="balance" type="number" value="100000" class="w-full border border-neutral-700 bg-neutral-950 rounded-xl px-3 py-2 pr-10 focus-ring">
+            <span class="absolute right-3 top-2.5 text-sm text-neutral-400 select-none curSym">$</span>
+          </div>
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Account Currency</span>
+          <select id="ccy" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950 focus-ring">
+            <option value="USD" selected>USD ($)</option><option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option><option value="JPY">JPY (¥)</option>
+            <option value="AUD">AUD (A$)</option><option value="CAD">CAD (C$)</option>
+          </select>
+          <label class="mt-1 inline-flex items-center gap-2 text-xs text-neutral-400 select-none">
+            <input id="autoFx" type="checkbox" checked class="rounded"> Auto-convert on currency change
+          </label>
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Today's Realized P/L</span>
+          <div class="mt-1 relative">
+            <input id="plToday" type="number" value="0" class="w-full border border-neutral-700 bg-neutral-950 rounded-xl px-3 py-2 pr-10 focus-ring">
+            <span class="absolute right-3 top-2.5 text-sm text-neutral-400 select-none curSym">$</span>
+          </div>
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Session P/L (what-if)</span>
+          <div class="mt-1 relative">
+            <input id="plSession" type="number" value="0" class="w-full border border-neutral-700 bg-neutral-950 rounded-xl px-3 py-2 pr-10 focus-ring">
+            <span class="absolute right-3 top-2.5 text-sm text-neutral-400 select-none curSym">$</span>
+          </div>
+          <p class="text-[11px] text-neutral-400 mt-1">Not posted to Today P/L — plan next trade.</p>
+        </label>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-3 mt-3">
+        <label class="block">
+          <span class="text-sm font-medium">Risk per Trade %</span>
+          <input id="riskPct" type="number" step="0.1" value="1" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950 focus-ring">
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Stop Loss (pips)</span>
+          <input id="slPips" type="number" step="0.1" value="50" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950 focus-ring">
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium"><span id="pipSym">$</span>/pip (1.00 lot)</span>
+          <input id="pipVal" type="number" step="0.01" value="10" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950 focus-ring">
+        </label>
+      </div>
+
+      <!-- Presets -->
+      <details class="mt-4">
+        <summary class="cursor-pointer text-sm text-neutral-300">Presets & Rule editor</summary>
+        <div class="mt-3 grid sm:grid-cols-3 gap-3">
+          <label class="block">
+            <span class="text-sm font-medium">Prop firm</span>
+            <select id="firm" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950 focus-ring">
+              <option>Custom</option><option>FTMO</option><option>The Funded Trader</option>
+              <option>FundedNext</option><option>The 5%ers</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium">Max Daily Loss %</span>
+            <input id="mdlPct" type="number" step="0.1" value="5" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950 focus-ring">
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium">Max Overall Loss %</span>
+            <input id="molPct" type="number" step="0.1" value="10" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950 focus-ring">
+          </label>
+        </div>
+
+        <div class="mt-3 grid sm:grid-cols-3 gap-3">
+          <label class="block">
+            <span class="text-sm font-medium">Saved preset</span>
+            <select id="presetList" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950"></select>
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium">Preset name</span>
+            <input id="presetName" placeholder="My FTMO 100k" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950">
+          </label>
+          <div class="flex items-end gap-2">
+            <button id="savePreset" type="button" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm">Save</button>
+            <button id="loadPreset" type="button" class="px-3 py-2 rounded-xl text-sm bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">Load</button>
+            <button id="deletePreset" type="button" class="px-3 py-2 rounded-xl text-sm bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">Delete</button>
+          </div>
+        </div>
+      </details>
+
+      <!-- Journal -->
+      <div class="mt-5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-medium mb-2">Journal (private)</h3>
+          <div class="flex items-center gap-2">
+            <input id="csvFile" type="file" accept=".csv" class="hidden">
+            <button id="pickCsv" class="px-3 py-2 rounded-xl text-sm bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">Import CSV</button>
+          </div>
+        </div>
+        <div id="dropZone" class="w-full border-2 border-dashed border-neutral-700 rounded-2xl p-3 text-sm text-neutral-400 text-center">Drag & drop CSV here (date,pl,notes) or click “Import CSV”.</div>
+        <textarea id="journal" rows="5" class="w-full border border-neutral-700 bg-neutral-950 rounded-2xl p-3 text-sm mt-2" placeholder="Notes for today..."></textarea>
+        <div class="flex gap-2 mt-2">
+          <button id="saveJournal" class="px-3 py-2 rounded-xl bg-white text-neutral-900 text-sm">Save</button>
+          <button id="exportJournal" class="px-3 py-2 rounded-xl text-sm bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">Export JSON</button>
+        </div>
+      </div>
+
+      <!-- Share/Print -->
+      <div class="mt-5 flex flex-wrap gap-2 no-print">
+        <button id="copyLink" type="button" class="px-3 py-2 rounded-xl text-sm bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">Share state</button>
+        <button id="printBtn" type="button" class="px-3 py-2 rounded-xl text-sm bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">Export / Print</button>
+      </div>
     </div>
 
-    <div>
-      <label>Max Daily Loss %: <input id="mdlPct" type="number" value="5"></label>
-      <label>Max Overall Loss %: <input id="molPct" type="number" value="10"></label>
+    <!-- Reviews slider -->
+    <section class="rounded-2xl p-5 shadow-sm ring-1 ring-white/10 bg-neutral-900/60 backdrop-blur-md">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-semibold">What traders say</h3>
+        <div class="flex gap-2">
+          <button id="revPrev" class="h-9 w-9 rounded-lg text-sm bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">‹</button>
+          <button id="revNext" class="h-9 w-9 rounded-lg text-sm bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">›</button>
+        </div>
+      </div>
+      <div id="reviews" class="snap-x overflow-x-auto flex gap-4 scroll-smooth"></div>
+      <template id="revTpl">
+        <figure class="min-w-[260px] max-w-[260px] snap-start rounded-2xl p-4 ring-1 ring-white/10 bg-neutral-900/70 backdrop-blur">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-400"></div>
+            <figcaption>
+              <div class="text-sm font-medium name"></div>
+              <div class="text-xs text-neutral-400 firm"></div>
+            </figcaption>
+          </div>
+          <p class="text-sm text-neutral-200 quote"></p>
+        </figure>
+      </template>
+    </section>
+  </section>
+
+  <!-- RIGHT: Results + Coach + Chatbot -->
+  <section class="space-y-6">
+    <div class="rounded-2xl p-5 shadow-sm ring-1 ring-white/10 bg-neutral-900/60 backdrop-blur-md">
+      <h2 class="text-xs font-semibold tracking-wider text-neutral-400 flex items-center gap-2 mb-2">
+        <span class="inline-flex h-5 w-5 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-400">✓</span>
+        RESULTS
+      </h2>
+      <div class="h-px bg-gradient-to-r from-neutral-800 via-transparent to-transparent mb-3"></div>
+
+      <!-- KPI pills -->
+      <div class="grid grid-cols-1 gap-3 mb-3">
+        <div class="flex items-center justify-between rounded-xl p-4 ring-1 ring-emerald-500/20 bg-emerald-900/20">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-white text-xs">✓</span>
+            <span class="font-medium">Remaining Loss Today</span>
+          </div>
+          <div id="remainToday" class="font-semibold tabular-nums tracking-tight">—</div>
+        </div>
+
+        <div class="flex items-center justify-between rounded-xl p-4 ring-1 ring-white/10 bg-neutral-900/50 backdrop-blur">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-neutral-800 text-neutral-200 text-xs">≡</span>
+            <span class="font-medium">Max Daily Loss</span>
+          </div>
+          <div id="maxDaily" class="font-semibold tabular-nums tracking-tight">—</div>
+        </div>
+      </div>
+
+      <!-- Progress + alerts -->
+      <div class="p-4 rounded-xl ring-1 ring-white/10 bg-neutral-900/50 backdrop-blur mb-3">
+        <div class="flex items-center justify-between text-sm">
+          <span>Daily usage</span><span id="usagePct" class="font-medium">0%</span>
+        </div>
+        <div class="h-2 rounded-full bg-neutral-800 overflow-hidden">
+          <div id="usageBar" class="h-full w-0"></div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-neutral-400 mt-3">
+          <span>Overall drawdown</span><span id="overallPct" class="font-medium">0%</span>
+        </div>
+        <div class="h-2 rounded-full bg-neutral-800 overflow-hidden">
+          <div id="overallBar" class="h-full w-0"></div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-neutral-400 mt-3">
+          <span>Alert at</span>
+          <input id="alertPct" type="range" min="50" max="95" value="80" class="w-40">
+          <span id="alertPctLabel">80%</span>
+        </div>
+        <p id="alertNote" class="text-xs mt-2 hidden">⚠ Approaching daily loss threshold. Consider stopping for today.</p>
+      </div>
+
+      <!-- CARD: Equity vs Daily Limit (compact) -->
+      <div class="p-4 rounded-xl ring-1 ring-white/10 bg-neutral-900/60 backdrop-blur mb-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-medium">Equity vs Daily Limit</h3>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-neutral-400">SOD:</span>
+            <span id="sodVal" class="font-medium">$100,000</span>
+            <button id="setSod" class="px-2.5 py-1.5 rounded-lg text-xs bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">Set SOD</button>
+            <button id="resetChart" class="px-2.5 py-1.5 rounded-lg text-xs bg-neutral-800 ring-1 ring-neutral-700 hover:bg-neutral-700">Reset</button>
+          </div>
+        </div>
+        <div class="h-56 md:h-64 relative">
+          <canvas id="equityChart" class="absolute inset-0 h-full w-full"></canvas>
+        </div>
+        <p class="mt-2 text-[11px] text-neutral-400">Updates every 5s while visible. SOD = start-of-day equity.</p>
+      </div>
+
+      <!-- Lot size + checklist -->
+      <div class="p-4 rounded-xl ring-1 ring-white/10 bg-neutral-900/50 backdrop-blur">
+        <div class="flex items-center justify-between">
+          <h3 class="font-medium">Max Position Size</h3>
+          <div class="text-xs text-neutral-400">Risk per trade: <span id="riskMoney">—</span></div>
+        </div>
+        <p class="text-xs text-neutral-400 mb-2">Lot = (Balance × Risk%) / (SL pips × <span class="curSym">$</span>/pip)</p>
+        <div class="text-lg font-semibold"><span id="lotSize">—</span> lots
+          <button id="copyLot" class="ml-2 px-2 py-1 text-xs rounded-lg ring-1 ring-neutral-700 disabled:opacity-50" disabled>Copy</button>
+        </div>
+
+        <div class="mt-3 rounded-xl ring-1 ring-neutral-800 bg-neutral-800/40 p-3">
+          <div class="text-xs font-medium mb-2">Pre-trade checklist (required to enable Copy):</div>
+          <div class="grid sm:grid-cols-2 gap-2 text-sm">
+            <label class="inline-flex items-start gap-2"><input type="checkbox" class="ck rounded"><span>Setup matches my plan (A+/A only)</span></label>
+            <label class="inline-flex items-start gap-2"><input type="checkbox" class="ck rounded"><span>Stop Loss placed at invalidation</span></label>
+            <label class="inline-flex items-start gap-2"><input type="checkbox" class="ck rounded"><span>Lot size fits today’s remaining loss</span></label>
+            <label class="inline-flex items-start gap-2"><input type="checkbox" class="ck rounded"><span>No revenge trading / overtrading</span></label>
+          </div>
+          <p id="ckWarn" class="text-[11px] text-amber-400 mt-2 hidden">Tick all items to enable Copy.</p>
+        </div>
+      </div>
+
+      <!-- Scenario Matrix -->
+      <div class="p-4 rounded-xl ring-1 ring-white/10 bg-neutral-900/50 backdrop-blur">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-medium">Scenario Matrix (Risk% × SL pips)</h3>
+          <div class="text-xs text-neutral-400">Quick what-if lots</div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <label class="block">
+            <span class="text-xs text-neutral-400">Risk% presets</span>
+            <input id="scRisks" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950" value="0.5,1,1.5,2"/>
+          </label>
+          <label class="block">
+            <span class="text-xs text-neutral-400">SL pips presets</span>
+            <input id="scSLs" class="w-full mt-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950" value="20,35,50,75"/>
+          </label>
+        </div>
+        <div id="scTable" class="mt-3 overflow-x-auto"></div>
+      </div>
+
+      <!-- Trade Guard -->
+      <div class="p-4 rounded-2xl ring-1 ring-white/10 bg-neutral-900/50 backdrop-blur mt-3">
+        <h3 class="font-medium mb-2">Trade Guard</h3>
+        <p id="guardMsg" class="text-sm text-neutral-200">—</p>
+      </div>
+
+      <!-- Reset -->
+      <div class="mt-4 rounded-xl ring-1 ring-white/10 bg-neutral-900/50 backdrop-blur p-4 flex items-center justify-between">
+        <span class="font-medium">Time to Reset (Local)</span>
+        <span id="resetTimer" class="font-semibold">--:--:--</span>
+      </div>
     </div>
 
-    <div>
-      <label>Risk %: <input id="riskPct" type="number" value="1"></label>
-      <label>Stop Loss (pips): <input id="slPips" type="number" value="30"></label>
-      <label>Pip Value: <input id="pipVal" type="number" value="10"></label>
-    </div>
+    <!-- Coach + Chatbot -->
+    <div class="rounded-2xl p-5 shadow-sm ring-1 ring-white/10 bg-neutral-900/60 backdrop-blur-md space-y-4">
+      <div>
+        <h3 class="font-semibold mb-2">Coach</h3>
+        <ul id="coach" class="text-sm space-y-2 text-neutral-200">
+          <li>• Set your <b>Risk%</b> and <b>SL</b> — I’ll compute safe lot size.</li>
+          <li>• Add <b>Session P/L</b> to preview the impact before you trade.</li>
+        </ul>
+        <div class="mt-3 text-xs text-neutral-400">Tips update live based on your numbers.</div>
+      </div>
 
-    <div class="chatbox">
-      <div class="chat-messages" id="chatMessages"></div>
-      <input type="text" id="chatInput" placeholder="Ask about risk, lots, etc.">
-      <button id="chatSend">Send</button>
+      <div class="pt-4 border-t border-neutral-800">
+        <h3 class="font-semibold mb-2">Assistant</h3>
+        <div id="chatLog" class="h-48 overflow-y-auto rounded-xl ring-1 ring-neutral-800 p-3 bg-neutral-900/60 text-sm space-y-2"></div>
+        <div class="mt-2 flex gap-2">
+          <input id="chatInput" class="flex-1 px-3 py-2 rounded-xl border border-neutral-700 bg-neutral-950 text-sm" placeholder="Try: remaining, lot, timer, risk 1% with 30 pips...">
+          <button id="chatSend" class="px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm">Send</button>
+        </div>
+        <p class="text-xs text-neutral-400 mt-1">Local assistant (no server). Commands: remaining, max daily, overall, lot, timer, help.</p>
+      </div>
+
+      <div class="mt-2 text-xs text-neutral-500">Hotkeys: <kbd>L</kbd> Lock • <kbd>U</kbd> Unlock • <kbd>P</kbd> Print • <kbd>S</kbd> Save preset • <kbd>J</kbd> Journal • <kbd>G</kbd> Copy lot • <kbd>?</kbd> Help</div>
     </div>
-  </div>
+  </section>
 </main>
 
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-  const STRIPE_LINK = "https://buy.stripe.com/9B6aEQc3IcLM2y18r683C00"; // link Stripe
-  const UNLOCK_KEY = "PRG-STRP-CHECK-42";
+<!-- Floating HUD -->
+<div id="hud" class="hidden fixed top-16 right-6 z-40 hud-drag select-none">
+  <div class="bg-neutral-900/90 backdrop-blur-md ring-1 ring-neutral-800 shadow-lg rounded-2xl px-4 py-3 text-sm flex flex-col gap-1">
+    <div class="flex items-center justify-between gap-6">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white text-[10px]">✓</span>
+        <span class="text-neutral-300">Remain</span>
+      </div>
+      <span id="hudRemain" class="font-semibold tabular-nums">—</span>
+    </div>
+    <div class="flex items-center justify-between gap-6">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-neutral-800 text-neutral-200 text-[10px]">⌛</span>
+        <span class="text-neutral-300">Reset</span>
+      </div>
+      <span id="hudTimer" class="font-semibold tabular-nums">--:--:--</span>
+    </div>
+  </div>
+</div>
 
-  // Elements
-  const paywall = document.getElementById('paywall');
-  const appContent = document.getElementById('appContent');
-  const buyBtn = document.getElementById('buyBtn');
-  const chatInput = document.getElementById('chatInput');
-  const chatSend = document.getElementById('chatSend');
-  const chatMessages = document.getElementById('chatMessages');
+<!-- PAYWALL -->
+<section id="paywall" class="fixed inset-0 z-50 bg-neutral-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="max-w-2xl w-full rounded-2xl ring-1 ring-white/10 bg-neutral-900/80 backdrop-blur shadow p-6">
+    <div class="flex items-center gap-3">
+      <svg viewBox="0 0 24 24" class="w-9 h-9 text-emerald-500"><path fill="currentColor" d="M12 2l7 3v6c0 5-3.5 9.74-7 11-3.5-1.26-7-6-7-11V5l7-3z"/></svg>
+      <div>
+        <h2 class="text-xl font-semibold">Unlock PropRisk Guard</h2>
+        <p class="text-sm text-neutral-300">Remaining Loss • Drawdown Guard • Lot Size • Multi-currency • Coach</p>
+      </div>
+    </div>
 
-  const balanceEl = document.getElementById('balance');
-  const plTodayEl = document.getElementById('plToday');
-  const ccyEl = document.getElementById('ccy');
-  const mdlPctEl = document.getElementById('mdlPct');
-  const molPctEl = document.getElementById('molPct');
-  const riskPctEl = document.getElementById('riskPct');
-  const slPipsEl = document.getElementById('slPips');
-  const pipValEl = document.getElementById('pipVal');
+    <div class="mt-5 text-center">
+      <!-- Stripe: direct link, £9.99 -->
+      <a id="buyBtn"
+         href="https://buy.stripe.com/9B6aEQc3IcLM2y18r683C00"
+         class="relative inline-flex items-center justify-center px-5 py-3 rounded-xl text-sm font-medium bg-white text-neutral-900 ring-1 ring-white/10 hover:opacity-90 transition focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-400/30">
+        Buy &amp; Unlock — £9.99 <span class="opacity-80">&nbsp;(lifetime)</span>
+      </a>
+      <p class="text-xs text-neutral-400 mt-2">One-time payment, lifetime access. Stripe accepts cards, Apple Pay & Google Pay.</p>
+    </div>
 
-  // Go to Stripe
-  function gotoStripe(){
-    if(!STRIPE_LINK){ alert("Stripe link not set"); return; }
-    window.location.href = STRIPE_LINK + `?prefilled_email=test@example.com&client_reference_id=prguser`;
-  }
-  buyBtn.addEventListener('click', gotoStripe);
+    <div class="grid md:grid-cols-2 gap-4 mt-6">
+      <ul class="text-sm space-y-2">
+        <li>✅ Remaining Daily Loss & usage bar</li>
+        <li>✅ Overall drawdown guard</li>
+        <li>✅ Lot size from risk %, pips, $/pip</li>
+        <li>✅ Multi-currency with auto-convert</li>
+        <li>✅ Live Coach & session plan</li>
+      </ul>
 
-  // Unlock check
-  const qs = new URLSearchParams(window.location.search);
-  if(qs.has('unlock') && qs.get('unlock')===UNLOCK_KEY){
-    localStorage.setItem('prg_unlocked', 'true');
-  }
-  if(localStorage.getItem('prg_unlocked')==='true'){
-    paywall.style.display = 'none';
-    appContent.style.display = 'block';
-  }
-    // --- Calculations ---
-  function fmt(v){ return (ccyEl.value||'').toUpperCase() + ' ' + v.toFixed(2); }
+      <div class="bg-neutral-900/70 rounded-xl p-4 ring-1 ring-neutral-800 backdrop-blur">
+        <label class="block text-sm font-medium mb-2">Already purchased?</label>
+        <div class="flex flex-col sm:flex-row w-full">
+          <input id="license" class="flex-1 border border-neutral-700 border-r-0 sm:rounded-l-xl sm:rounded-r-none rounded-xl px-3 h-11 outline-none focus-ring bg-neutral-950" placeholder="Enter license key"/>
+          <button id="redeem" type="button" class="sm:w-28 w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm transition sm:rounded-r-xl sm:rounded-l-none rounded-xl mt-2 sm:mt-0">Unlock</button>
+        </div>
+        <p class="text-xs text-neutral-400 mt-2">We'll remember it on this device.</p>
+      </div>
+    </div>
 
-  function calc(){
-    const bal = parseFloat(balanceEl.value||0);
-    const pl  = parseFloat(plTodayEl.value||0);
-    const mdl = parseFloat(mdlPctEl.value||0)/100;
-    const mol = parseFloat(molPctEl.value||0)/100;
-    const riskPct = parseFloat(riskPctEl.value||0)/100;
-    const sl = parseFloat(slPipsEl.value||0);
-    const pip = parseFloat(pipValEl.value||0);
+    <p class="text-xs text-neutral-400 mt-4">7-day refund, no questions asked. Independent tool; verify your firm's official rules.</p>
+  </div>
+</section>
 
-    const maxDaily = bal * mdl;
-    const remaining = Math.max(0, maxDaily + pl);
-    const overallMax = bal * mol;
-    const lot = (sl>0 && pip>0) ? (bal * riskPct / (sl*pip)) : 0;
+<footer class="border-t border-neutral-800">
+  <div class="max-w-6xl mx-auto px-4 py-6 text-xs text-neutral-400 flex items-center justify-between">
+    <div>© <span id="yr"></span> PropRisk Guard</div>
+    <div>No tracking • 100% client-side</div>
+  </div>
+</footer>
 
-    return { bal, pl, mdl, mol, riskPct, sl, pip, maxDaily, remaining, overallMax, lot };
-  }
-
-  // --- Chat Bot ---
-  function addMsg(text, cls){
-    const d=document.createElement('div');
-    d.className=cls;
-    d.innerHTML=text;
-    chatMessages.appendChild(d);
-    chatMessages.scrollTop=chatMessages.scrollHeight;
-  }
-
-  function botReply(q){
-    const ql = q.toLowerCase();
-    const {bal,pl,mdl,mol,riskPct,sl,pip,maxDaily,remaining,overallMax,lot} = calc();
-
-    if(ql.includes('help')||ql==='?') return 'Try: <b>remaining</b>, <b>max daily</b>, <b>overall</b>, <b>lot</b>, or “risk 1% with 30 pips”.';
-    if(ql.includes('remaining')) return `You can still lose <b>${fmt(remaining)}</b> today before breaching the daily limit.`;
-    if(ql.includes('max daily')) return `Max Daily Loss is <b>${fmt(maxDaily)}</b>.`;
-    if(ql.includes('overall')) return `Overall max loss allowed is <b>${fmt(overallMax)}</b>.`;
-    if(ql.includes('lot')) return `With risk ${(riskPct*100).toFixed(2)}%, SL ${sl} pips, pip=${pip}, lot ≈ <b>${ isFinite(lot)? (lot>=1?lot.toFixed(2):lot.toFixed(3)) : '—' }</b>.`;
-
-    const m=ql.match(/risk\s*([0-9.]+)\s*%.*?(\d+)\s*(pip|pips)/);
-    if(m){
-      const r=parseFloat(m[1])/100;
-      const slGuess=parseFloat(m[2]);
-      const lotG=(slGuess>0&&pip>0)?(bal*r/(slGuess*pip)):0;
-      return `At risk ${m[1]}% and SL ${slGuess} pips, lot ≈ <b>${ isFinite(lotG)? (lotG>=1?lotG.toFixed(2):lotG.toFixed(3)) : '—' }</b>.`;
-    }
-    return "Got it. Type <b>help</b> for examples.";
-  }
-
-  function send(){
-    const t=(chatInput?.value||'').trim();
-    if(!t) return;
-    addMsg(t,'me'); 
-    addMsg(botReply(t),'bot');
-    chatInput.value='';
-  }
-
-  chatSend?.addEventListener('click',send);
-  chatInput?.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){ e.preventDefault(); send(); }
-  });
-
-  // Init
-  [balanceEl, plTodayEl, riskPctEl, slPipsEl, pipValEl, mdlPctEl, molPctEl]
-    .forEach(el=> el?.addEventListener('input', calc));
-
-  calc();
-});
-</script>
+<!-- Doar JS externul tău -->
+<script src="/script.js"></script>
 </body>
 </html>
